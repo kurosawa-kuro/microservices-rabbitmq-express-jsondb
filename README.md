@@ -40,25 +40,25 @@ This project uses the following environment variables:
 PORT=8000
 
 # User service
-USER_SERVICE_URL='http://localhost:8001'
+USER_SERVICE_URL=http://localhost:8001
 
 # Order service
-ORDER_SERVICE_URL='http://localhost:8002'
+ORDER_SERVICE_URL=http://localhost:8002
 
 # Product service
-PRODUCT_SERVICE_URL='http://localhost:8003'
+PRODUCT_SERVICE_URL=http://localhost:8003
 ```
 
 ##### microservice
 ```
 # Database
-DB=''
+DB=
 
 # Service port
 PORT=8001
 
 # RabbitMQ configuration (use local or cloud url here)
-MESSAGE_BROKER_URL=''
+MESSAGE_BROKER_URL=
 ```
 
 ### Running the project
