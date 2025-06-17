@@ -4,6 +4,10 @@ import { PublishMessage } from '../util/broker';
 import db from '../database/connection';
 import { CollectionChain } from 'lodash';
 import axios from 'axios';
+import NodeCache from 'node-cache';
+
+// キャッシュの設定（TTL: 30秒）
+const cache = new NodeCache({ stdTTL: 30 });
 
 interface Product {
     productId: number;
@@ -36,18 +40,36 @@ interface ProductDetail {
     category: string;
 }
 
+// キャッシュ付きのAPI呼び出し関数
+async function fetchWithCache<T>(key: string, fetchFn: () => Promise<{ data: T }>): Promise<{ data: T }> {
+    const cached = cache.get<T>(key);
+    if (cached) {
+        console.log(`Cache hit for key: ${key}`);
+        return { data: cached };
+    }
+
+    console.log(`Cache miss for key: ${key}`);
+    const response = await fetchFn();
+    cache.set(key, response.data);
+    return response;
+}
+
 const OrderAPI = (app:Express, channel:Channel) => {
     // 注文一覧の取得（ユーザーと商品の詳細を含む）
     app.get('/list', async (req:Request, res:Response) => {
         try {
             const orders = (db.get('orders') as CollectionChain<Order>).value();
             
-            // 注文データを並列で取得
+            // 注文データを並列で取得（キャッシュ付き）
             const enrichedOrders = await Promise.all(orders.map(async (order) => {
                 const [user, products] = await Promise.all([
-                    axios.get<User>(`http://localhost:8001/user/${order.userId}`),
+                    fetchWithCache(`user:${order.userId}`, () => 
+                        axios.get<User>(`http://localhost:8001/users/${order.userId}`)
+                    ),
                     Promise.all(order.products.map((product: Product) => 
-                        axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
+                        fetchWithCache(`product:${product.productId}`, () =>
+                            axios.get<ProductDetail>(`http://localhost:8003/products/${product.productId}`)
+                        )
                     ))
                 ]);
 
@@ -80,9 +102,13 @@ const OrderAPI = (app:Express, channel:Channel) => {
             }
 
             const [user, products] = await Promise.all([
-                axios.get<User>(`http://localhost:8001/user/${order.userId}`),
+                fetchWithCache(`user:${order.userId}`, () => 
+                    axios.get<User>(`http://localhost:8001/users/${order.userId}`)
+                ),
                 Promise.all(order.products.map((product: Product) => 
-                    axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
+                    fetchWithCache(`product:${product.productId}`, () =>
+                        axios.get<ProductDetail>(`http://localhost:8003/products/${product.productId}`)
+                    )
                 ))
             ]);
 
@@ -107,15 +133,19 @@ const OrderAPI = (app:Express, channel:Channel) => {
         try {
             const { userId, products } = req.body;
 
-            // ユーザーの存在確認
-            const userResponse = await axios.get<User>(`http://localhost:8001/user/${userId}`);
+            // ユーザーの存在確認（キャッシュ付き）
+            const userResponse = await fetchWithCache(`user:${userId}`, () => 
+                axios.get<User>(`http://localhost:8001/users/${userId}`)
+            );
             if (!userResponse.data) {
                 return res.status(404).json({ error: 'User not found' });
             }
 
-            // 商品の存在確認と在庫チェック
+            // 商品の存在確認と在庫チェック（キャッシュ付き）
             for (const product of products) {
-                const productResponse = await axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`);
+                const productResponse = await fetchWithCache(`product:${product.productId}`, () =>
+                    axios.get<ProductDetail>(`http://localhost:8003/products/${product.productId}`)
+                );
                 if (!productResponse.data) {
                     return res.status(404).json({ error: `Product ${product.productId} not found` });
                 }

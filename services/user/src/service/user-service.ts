@@ -12,6 +12,10 @@ class UserService {
         const userList = await this.repository.GetUsers();
         return userList;
     }
+
+    GetUser = async (data:{id:string}) => {
+        return await this.repository.GetUser(data);
+    }
     
     ReceivePing = async (data:any) => {
         console.log('Your service just got pinged:');

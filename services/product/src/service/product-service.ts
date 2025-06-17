@@ -12,6 +12,10 @@ class ProductService {
         const productList = await this.repository.GetProducts();
         return productList;
     }
+
+    GetProduct = async (data:{id:string}) => {
+        return await this.repository.GetProduct(data);
+    }
     
     ReceivePing = async (data:any) => {
         console.log('Your service just got pinged:');
