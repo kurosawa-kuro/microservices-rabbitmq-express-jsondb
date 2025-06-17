@@ -1,0 +1,92 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - microservices_net
+
+  order-service:
+    build: 
+      context: ./services/order
+      dockerfile: Dockerfile
+    container_name: 'order-service'
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./services/order/json-order.db:/app/json-order.db
+    environment:
+      - NODE_ENV=prod
+      - PORT=8003
+      - DB=json-order.db
+      - MESSAGE_BROKER_URL=amqp://rabbitmq
+      - USER_SERVICE_URL=http://user-service:8001
+      - PRODUCT_SERVICE_URL=http://product-service:8002
+      - ORDER_SERVICE_URL=http://order-service:8003
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_net
+
+  product-service:
+    build:
+      context: ./services/product
+      dockerfile: Dockerfile
+    container_name: 'product-service'
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./services/product/json-product.db:/app/json-product.db
+    environment:
+      - NODE_ENV=prod
+      - PORT=8002
+      - DB=json-product.db
+      - MESSAGE_BROKER_URL=amqp://rabbitmq
+      - USER_SERVICE_URL=http://user-service:8001
+      - PRODUCT_SERVICE_URL=http://product-service:8002
+      - ORDER_SERVICE_URL=http://order-service:8003
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_net
+
+  user-service:
+    build:
+      context: ./services/user
+      dockerfile: Dockerfile
+    container_name: 'user-service'
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/user/json-user.db:/app/json-user.db
+    environment:
+      - NODE_ENV=prod
+      - PORT=8001
+      - DB=json-user.db
+      - MESSAGE_BROKER_URL=amqp://rabbitmq
+      - USER_SERVICE_URL=http://user-service:8001
+      - PRODUCT_SERVICE_URL=http://product-service:8002
+      - ORDER_SERVICE_URL=http://order-service:8003
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_net
+
+networks:
+  microservices_net:
+    driver: bridge 
