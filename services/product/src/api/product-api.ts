@@ -1,24 +1,48 @@
 import { Channel } from "amqplib";
 import { Router, NextFunction, Request, Response } from "express"
-import ProductService from "../service/product-service";
-import { SubscribeMessage, PublishMessage } from "../util/broker";
+import { PublishMessage } from "../util/broker";
+import db from "../database/connection";
+import { CollectionChain } from "lodash";
+
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    category: string;
+    createdAt: string;
+}
 
 const ProductAPI = (router:Router, channel:Channel) => {
 
-    const productService = new ProductService();
-    SubscribeMessage(channel, productService);
-
-    router.get('/list', async (req:Request, res:Response, next:NextFunction) => {
-        const result = await productService.GetProductList();
-        return res.status(200).json({result});
+    // 商品一覧の取得
+    router.get('/list', (req: Request, res: Response) => {
+        try {
+            const products = (db.get('products') as CollectionChain<Product>).value();
+            res.json(products);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            res.status(500).json({ error: 'Failed to fetch products' });
+        }
     });
 
-    router.get('/:id', async (req:Request, res:Response, next:NextFunction) => {
-        const result = await productService.GetProduct({ id: req.params.id });
-        if (!result) {
-            return res.status(404).json({ error: 'Product not found' });
+    // 特定の商品の取得
+    router.get('/:id', (req: Request, res: Response) => {
+        try {
+            const product = (db.get('products') as CollectionChain<Product>)
+                .find({ id: parseInt(req.params.id) })
+                .value();
+            
+            if (!product) {
+                return res.status(404).json({ error: 'Product not found' });
+            }
+            
+            res.json(product);
+        } catch (error) {
+            console.error('Error fetching product:', error);
+            res.status(500).json({ error: 'Failed to fetch product' });
         }
-        return res.status(200).json(result);
     });
 
     router.get('/ping-client', async (req:Request, res:Response, next:NextFunction) => {

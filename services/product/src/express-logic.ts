@@ -1,21 +1,25 @@
-import express, { Express, Request, Response, NextFunction, Router } from "express";
-import cors from 'cors';
-import ProductAPI from "./api/product-api";
-import { Channel } from "amqplib";
+import express, { Request, Response, NextFunction, Router } from 'express';
+import { Channel } from 'amqplib';
+import ProductAPI from './api/product-api';
 
-const ExpressLogic = async (app:Express, channel:Channel) => {
-    app.use(express.json({ limit: '1mb' }));
-    app.use(cors());
-
-    // ルーターを作成してAPIを設定
-    const router = Router();
-    ProductAPI(router, channel);
-    app.use('/products', router);
-
-    // デフォルトルートは最後に設定
-    app.use('*', (req:Request, res:Response, next:NextFunction)=>{
-        return res.status(200).json({msg: 'Product service response'});
+const ProductExpressLogic = (app: express.Express, channel: Channel) => {
+    // ミドルウェアの設定
+    app.use(express.json());
+    app.use((req: Request, res: Response, next: NextFunction) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+        next();
     });
-}
 
-export default ExpressLogic;
+    // APIルートの設定
+    const productRouter = Router();
+    ProductAPI(productRouter, channel);
+    app.use('/', productRouter);
+
+    // デフォルトルート（最後に設定）
+    app.use('*', (req: Request, res: Response) => {
+        res.json({ msg: 'Product service response' });
+    });
+};
+
+export default ProductExpressLogic;

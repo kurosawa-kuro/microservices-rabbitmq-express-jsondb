@@ -38,7 +38,7 @@ app.use('/product', createProxyMiddleware({
   target: services.product,
   changeOrigin: true,
   pathRewrite: {
-    '^/product': ''
+    '^/product': '/products'
   }
 }));
 

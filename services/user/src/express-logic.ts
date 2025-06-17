@@ -10,7 +10,7 @@ const ExpressLogic = async (app:Express, channel:Channel) => {
     // ルーターを作成してAPIを設定
     const router = Router();
     UserAPI(router, channel);
-    app.use('/users', router);
+    app.use('/', router);  // ルートパスを変更
 
     // デフォルトルートは最後に設定
     app.use('*', (req:Request, res:Response, next:NextFunction)=>{
