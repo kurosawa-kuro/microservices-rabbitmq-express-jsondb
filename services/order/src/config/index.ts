@@ -12,5 +12,7 @@ if(process.env.NODE_ENV !== 'production') {
 export default {
     PORT: process.env.PORT || 8002,
     DB: process.env.DB || '',
-    MESSAGE_BROKER_URL: process.env.MESSAGE_BROKER_URL || 'amqp://localhost'
+    MESSAGE_BROKER_URL: process.env.MESSAGE_BROKER_URL || 'amqp://localhost',
+    USER_SERVICE_URL: process.env.USER_SERVICE_URL || 'http://localhost:8001',
+    PRODUCT_SERVICE_URL: process.env.PRODUCT_SERVICE_URL || 'http://localhost:8003'
 }

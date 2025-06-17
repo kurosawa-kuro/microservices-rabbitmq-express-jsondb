@@ -6,6 +6,7 @@ import { CollectionChain } from 'lodash';
 import axios from 'axios';
 import NodeCache from 'node-cache';
 import express from 'express';
+import config from '../config';
 
 // キャッシュの設定（TTL: 30秒）
 const cache = new NodeCache({ stdTTL: 30 });
@@ -73,11 +74,11 @@ const OrderAPI = (router: Router, channel: Channel) => {
             const enrichedOrders = await Promise.all(orders.map(async (order) => {
                 const [user, products] = await Promise.all([
                     fetchWithCache(`user:${order.userId}`, () => 
-                        axios.get<User>(`http://localhost:8001/user/${order.userId}`)
+                        axios.get<User>(`${config.USER_SERVICE_URL}/user/${order.userId}`)
                     ),
                     Promise.all(order.products.map((product: Product) => 
                         fetchWithCache(`product:${product.productId}`, () =>
-                            axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
+                            axios.get<ProductDetail>(`${config.PRODUCT_SERVICE_URL}/product/${product.productId}`)
                         )
                     ))
                 ]);
@@ -130,7 +131,7 @@ const OrderAPI = (router: Router, channel: Channel) => {
 
             // ユーザー存在確認
             const userResponse = await fetchWithCache<UserDetail>(`user:${userId}`, () => 
-                axios.get<UserDetail>(`http://localhost:8001/user/${userId}`)
+                axios.get<UserDetail>(`${config.USER_SERVICE_URL}/user/${userId}`)
             );
             if (!userResponse.data) {
                 return res.status(404).json({ error: 'User not found' });
@@ -143,7 +144,7 @@ const OrderAPI = (router: Router, channel: Channel) => {
             for (const product of products) {
                 const productResponse = await fetchWithCache<ProductDetail>(
                     `product:${product.productId}`,
-                    () => axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
+                    () => axios.get<ProductDetail>(`${config.PRODUCT_SERVICE_URL}/product/${product.productId}`)
                 );
 
                 if (!productResponse.data) {
@@ -230,11 +231,11 @@ const OrderAPI = (router: Router, channel: Channel) => {
 
             const [user, products] = await Promise.all([
                 fetchWithCache(`user:${order.userId}`, () => 
-                    axios.get<User>(`http://localhost:8001/user/${order.userId}`)
+                    axios.get<User>(`${config.USER_SERVICE_URL}/user/${order.userId}`)
                 ),
                 Promise.all(order.products.map((product: Product) => 
                     fetchWithCache(`product:${product.productId}`, () =>
-                        axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
+                        axios.get<ProductDetail>(`${config.PRODUCT_SERVICE_URL}/product/${product.productId}`)
                     )
                 ))
             ]);

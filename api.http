@@ -1,18 +1,37 @@
-### user list
-
+### Direct access to services
+### user list (direct)
 GET http://localhost:8001/user/list
 
-### product list
+### product list (direct)
 GET http://localhost:8003/product/list
 
-
-### order list
+### order list (direct)
 GET http://localhost:8002/order/list
 
-
-
-### order create
+### order create (direct)
 POST http://localhost:8002/order
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userId": 1,
+  "products": [
+    { "productId": 1, "quantity": 2 }
+  ]
+}
+
+### API Gateway access
+### user list (via gateway)
+GET http://localhost:8000/user/list
+
+### product list (via gateway)
+GET http://localhost:8000/product/list
+
+### order list (via gateway)
+GET http://localhost:8000/order/list
+
+### order create (via gateway)
+POST http://localhost:8000/order
 Content-Type: application/json
 Accept: application/json
 
