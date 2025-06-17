@@ -388,6 +388,20 @@
       "totalAmount": 240000,
       "status": "pending",
       "createdAt": "2025-06-17T20:20:31.942Z"
+    },
+    {
+      "id": 1750192359458,
+      "userId": 1,
+      "products": [
+        {
+          "productId": 1,
+          "quantity": 2,
+          "price": 120000
+        }
+      ],
+      "totalAmount": 240000,
+      "status": "pending",
+      "createdAt": "2025-06-17T20:32:39.458Z"
     }
   ]
 }

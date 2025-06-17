@@ -3,13 +3,13 @@
 GET http://localhost:8001/user/list
 
 ### product list (direct)
-GET http://localhost:8003/product/list
+GET http://localhost:8002/product/list
 
 ### order list (direct)
-GET http://localhost:8002/order/list
+GET http://localhost:8003/order/list
 
 ### order create (direct)
-POST http://localhost:8002/order
+POST http://localhost:8003/order
 Content-Type: application/json
 Accept: application/json
 
