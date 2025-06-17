@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "山田太郎",
+      "email": "yamada@example.com",
+      "role": "user",
+      "createdAt": "2025-06-17T13:06:51.034Z"
+    },
+    {
+      "id": 2,
+      "name": "佐藤花子",
+      "email": "sato@example.com",
+      "role": "user",
+      "createdAt": "2025-06-17T13:06:51.035Z"
+    },
+    {
+      "id": 3,
+      "name": "鈴木一郎",
+      "email": "suzuki@example.com",
+      "role": "admin",
+      "createdAt": "2025-06-17T13:06:51.035Z"
+    }
+  ]
+}
