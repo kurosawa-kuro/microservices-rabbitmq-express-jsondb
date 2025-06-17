@@ -1,3 +1,3 @@
-import Client from "./Client";
+import Order from "./Order";
 
-export { Client };
+export { Order };

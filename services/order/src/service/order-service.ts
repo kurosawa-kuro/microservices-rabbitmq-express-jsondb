@@ -1,18 +1,23 @@
-import ClientRepository from '../database/repository/client-repository';
+import OrderRepository from '../database/repository/order-repository';
 
-class ClientService {
+class OrderService {
 
-    repository:ClientRepository;
+    repository:OrderRepository;
 
     constructor() {
-        this.repository = new ClientRepository();
+        this.repository = new OrderRepository();
     }
 
-    GetClientList = async () => {
-        const productList = await this.repository.GetClients();
-        return productList;
+    GetOrderList = async () => {
+        const orderList = await this.repository.GetOrders();
+        return orderList;
     }
     
+    GetOrder = async (data: { id: string }) => {
+        const order = await this.repository.GetOrder(data);
+        return order;
+    }
+
     ReceivePing = async (data:any) => {
         console.log('Your service just got pinged:');
         console.log(data);
@@ -31,4 +36,4 @@ class ClientService {
     }
 }
 
-export default ClientService;
+export default OrderService;
