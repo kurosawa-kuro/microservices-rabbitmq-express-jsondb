@@ -14,7 +14,7 @@ const ProductExpressLogic = (app: express.Express, channel: Channel) => {
     // APIルートの設定
     const productRouter = Router();
     ProductAPI(productRouter, channel);
-    app.use('/', productRouter);
+    app.use('/product', productRouter);
 
     // デフォルトルート（最後に設定）
     app.use('*', (req: Request, res: Response) => {
