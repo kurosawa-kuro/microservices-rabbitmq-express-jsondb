@@ -45,23 +45,24 @@ start-prod:
 # サービスを停止 port番号を指定して停止 8001,8002,8003,8004
 stop:
 	@echo "Stopping all services..."
-	@pkill -f "node.*services/user" || true
-	@pkill -f "node.*services/client" || true
-	@pkill -f "node.*services/product" || true
-	@pkill -f "node.*api-gateway" || true
-
-# ポート番号を指定してサービスを停止
-stop-by-port:
-	@echo "Stopping services by port..."
-	@for port in 8000 8001 8002 8003 8004; do \
-		pid=$$(lsof -ti:$$port); \
+	@bash -c 'for service in $(SERVICES); do \
+		echo "Stopping $$service..."; \
+		if [ "$$service" = "api-gateway" ]; then \
+			pkill -9 -f "node.*api-gateway" 2>/dev/null || true; \
+		else \
+			pkill -9 -f "node.*services/$$service" 2>/dev/null || true; \
+		fi; \
+	done'
+	@bash -c 'for port in 8000 8001 8002 8003 8004; do \
+		pid=$$(lsof -ti:$$port 2>/dev/null); \
 		if [ ! -z "$$pid" ]; then \
 			echo "Stopping service on port $$port (PID: $$pid)"; \
-			kill $$pid || true; \
+			kill -9 $$pid 2>/dev/null || true; \
 		else \
 			echo "No service running on port $$port"; \
 		fi; \
-	done
+	done'
+	@echo "All services stopped."
 
 # クリーンアップ
 clean:
