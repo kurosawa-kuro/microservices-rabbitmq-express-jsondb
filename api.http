@@ -1,0 +1,24 @@
+### user list
+GET http://localhost:8000/user/list
+Accept: application/json   ←①（任意だが付けると明示的）
+
+### product list
+GET http://localhost:8000/product/list
+Accept: application/json
+
+### order list
+GET http://localhost:8000/order/list
+Accept: application/json
+
+
+### order create
+POST http://localhost:8002/order
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userId": 1,
+  "products": [
+    { "productId": 1, "quantity": 2 }
+  ]
+}

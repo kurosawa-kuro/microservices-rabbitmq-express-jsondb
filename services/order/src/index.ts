@@ -23,7 +23,9 @@ console.log('Database initialized');
 const startServer = async () => {
   try {
     const channel = await CreateChannel();
-    OrderAPI(app, channel);
+    const router = express.Router();
+    OrderAPI(router, channel);
+    app.use('/order', router);
 
     app.listen(port, () => {
       console.log(`Running server in mode: ${process.env.NODE_ENV}`);
