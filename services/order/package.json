@@ -4,8 +4,8 @@
   "description": "Order Service",
   "main": "src/index.ts",
   "scripts": {
-    "start": "NODE_ENV=prod ts-node src/index.ts",
-    "dev": "NODE_ENV=dev nodemon src/index.ts",
+    "start": "NODE_ENV=prod ts-node --transpile-only src/index.ts",
+    "dev": "NODE_ENV=dev nodemon --exec ts-node --transpile-only src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,25 +1,47 @@
-import express, { Response, Request } from 'express';
-import proxy from 'express-http-proxy';
+import express from 'express';
 import cors from 'cors';
-import config from './config';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app = express();
+const port = process.env.PORT || 8000;
 
 app.use(cors());
 app.use(express.json());
 
-// Proxying all microservices
-app.use('/user', proxy(config.USER_SERVICE_URL));
-app.use('/client', proxy(config.CLIENT_SERVICE_URL));
-app.use('/product', proxy(config.PRODUCT_SERVICE_URL));
+// サービス設定
+const services = {
+  user: 'http://localhost:8001',
+  order: 'http://localhost:8002',
+  product: 'http://localhost:8003'
+};
 
-app.use('/', (req:Request, res:Response) => {
-    return res.status(200).json({msg: 'No endpoint specified'});
-})
+// ユーザーサービスのルート
+app.use('/user', createProxyMiddleware({
+  target: services.user,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/user': ''
+  }
+}));
 
-app.listen(config.PORT, ()=>{
-    console.log(`Gateway running at port ${config.PORT}`);
-}).on('error', (err:Error) => {
-    console.log(err);
-    process.exit();
+// 注文サービスのルート
+app.use('/order', createProxyMiddleware({
+  target: services.order,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/order': ''
+  }
+}));
+
+// 商品サービスのルート
+app.use('/product', createProxyMiddleware({
+  target: services.product,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/product': ''
+  }
+}));
+
+app.listen(port, () => {
+  console.log(`Gateway running at port ${port}`);
 });

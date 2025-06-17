@@ -118,7 +118,7 @@ The project has couple endpoints to ping each other and one normal endpoint.
 
   
 
-`http://localhost:8000/client/list`
+`http://localhost:8000/order/list`
 
 `http://localhost:8000/client/ping-user`
 
