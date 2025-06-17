@@ -36,5 +36,54 @@
       "phone": "092-123-4567",
       "createdAt": "2025-06-17T13:12:56.476Z"
     }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "userId": 1,
+      "products": [
+        {
+          "productId": 1,
+          "quantity": 2,
+          "price": 120000
+        }
+      ],
+      "totalAmount": 240000,
+      "status": "pending",
+      "createdAt": "2025-06-17T15:40:10.329Z"
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "products": [
+        {
+          "productId": 2,
+          "quantity": 1,
+          "price": 80000
+        },
+        {
+          "productId": 3,
+          "quantity": 3,
+          "price": 25000
+        }
+      ],
+      "totalAmount": 155000,
+      "status": "completed",
+      "createdAt": "2025-06-17T15:40:10.329Z"
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "products": [
+        {
+          "productId": 4,
+          "quantity": 1,
+          "price": 35000
+        }
+      ],
+      "totalAmount": 35000,
+      "status": "processing",
+      "createdAt": "2025-06-17T15:40:10.329Z"
+    }
   ]
 }

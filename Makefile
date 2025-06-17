@@ -1,7 +1,7 @@
 .PHONY: install start stop clean
 
 # サービス名の定義
-SERVICES = user client product api-gateway
+SERVICES = user order product api-gateway
 
 # インストール
 install:
