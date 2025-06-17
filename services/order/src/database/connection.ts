@@ -1,8 +1,9 @@
 import low from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
 import path from 'path';
+import config from '../config';
 
-const adapter = new FileSync(path.join(__dirname, '../../json-order.db'));
+const adapter = new FileSync(path.join(__dirname, `../../${config.DB}`));
 const db = low(adapter);
 
 // 初期データの設定

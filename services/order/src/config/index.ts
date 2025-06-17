@@ -11,7 +11,7 @@ if(process.env.NODE_ENV !== 'production') {
 
 export default {
     PORT: process.env.PORT || 8003,
-    DB: process.env.DB || '',
+    DB: process.env.DB || 'json-order.db',
     MESSAGE_BROKER_URL: process.env.MESSAGE_BROKER_URL || 'amqp://localhost',
     USER_SERVICE_URL: process.env.USER_SERVICE_URL || 'http://localhost:8001',
     PRODUCT_SERVICE_URL: process.env.PRODUCT_SERVICE_URL || 'http://localhost:8002',
