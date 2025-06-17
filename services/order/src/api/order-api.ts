@@ -73,11 +73,11 @@ const OrderAPI = (router: Router, channel: Channel) => {
             const enrichedOrders = await Promise.all(orders.map(async (order) => {
                 const [user, products] = await Promise.all([
                     fetchWithCache(`user:${order.userId}`, () => 
-                        axios.get<User>(`http://localhost:8000/user/${order.userId}`)
+                        axios.get<User>(`http://localhost:8001/user/${order.userId}`)
                     ),
                     Promise.all(order.products.map((product: Product) => 
                         fetchWithCache(`product:${product.productId}`, () =>
-                            axios.get<ProductDetail>(`http://localhost:8000/product/${product.productId}`)
+                            axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
                         )
                     ))
                 ]);
@@ -130,7 +130,7 @@ const OrderAPI = (router: Router, channel: Channel) => {
 
             // ユーザー存在確認
             const userResponse = await fetchWithCache<UserDetail>(`user:${userId}`, () => 
-                axios.get<UserDetail>(`http://localhost:8000/user/${userId}`)
+                axios.get<UserDetail>(`http://localhost:8001/user/${userId}`)
             );
             if (!userResponse.data) {
                 return res.status(404).json({ error: 'User not found' });
@@ -143,7 +143,7 @@ const OrderAPI = (router: Router, channel: Channel) => {
             for (const product of products) {
                 const productResponse = await fetchWithCache<ProductDetail>(
                     `product:${product.productId}`,
-                    () => axios.get<ProductDetail>(`http://localhost:8000/product/${product.productId}`)
+                    () => axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
                 );
 
                 if (!productResponse.data) {
@@ -230,11 +230,11 @@ const OrderAPI = (router: Router, channel: Channel) => {
 
             const [user, products] = await Promise.all([
                 fetchWithCache(`user:${order.userId}`, () => 
-                    axios.get<User>(`http://localhost:8000/user/${order.userId}`)
+                    axios.get<User>(`http://localhost:8001/user/${order.userId}`)
                 ),
                 Promise.all(order.products.map((product: Product) => 
                     fetchWithCache(`product:${product.productId}`, () =>
-                        axios.get<ProductDetail>(`http://localhost:8000/product/${product.productId}`)
+                        axios.get<ProductDetail>(`http://localhost:8003/product/${product.productId}`)
                     )
                 ))
             ]);
