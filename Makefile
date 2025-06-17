@@ -22,11 +22,11 @@ start:
 	@for service in $(SERVICES); do \
 		echo "Starting $$service..."; \
 		if [ "$$service" = "api-gateway" ]; then \
-			cd api-gateway && npm run dev & \
+			cd "$(CURDIR)/api-gateway" && npm run dev & \
 		else \
-			cd services/$$service && npm run dev & \
+			cd "$(CURDIR)/services/$$service" && npm run dev & \
 		fi; \
-		cd ../..; \
+		cd "$(CURDIR)"; \
 	done
 
 # 本番モードで起動
@@ -35,20 +35,33 @@ start-prod:
 	@for service in $(SERVICES); do \
 		echo "Starting $$service..."; \
 		if [ "$$service" = "api-gateway" ]; then \
-			cd api-gateway && npm start & \
+			cd "$(CURDIR)/api-gateway" && npm start & \
 		else \
-			cd services/$$service && npm start & \
+			cd "$(CURDIR)/services/$$service" && npm start & \
 		fi; \
-		cd ../..; \
+		cd "$(CURDIR)"; \
 	done
 
-# サービスを停止
+# サービスを停止 port番号を指定して停止 8001,8002,8003,8004
 stop:
 	@echo "Stopping all services..."
 	@pkill -f "node.*services/user" || true
 	@pkill -f "node.*services/client" || true
 	@pkill -f "node.*services/product" || true
 	@pkill -f "node.*api-gateway" || true
+
+# ポート番号を指定してサービスを停止
+stop-by-port:
+	@echo "Stopping services by port..."
+	@for port in 8000 8001 8002 8003 8004; do \
+		pid=$$(lsof -ti:$$port); \
+		if [ ! -z "$$pid" ]; then \
+			echo "Stopping service on port $$port (PID: $$pid)"; \
+			kill $$pid || true; \
+		else \
+			echo "No service running on port $$port"; \
+		fi; \
+	done
 
 # クリーンアップ
 clean:
@@ -69,5 +82,6 @@ help:
 	@echo "  make start       - Start all services in development mode"
 	@echo "  make start-prod  - Start all services in production mode"
 	@echo "  make stop        - Stop all services"
+	@echo "  make stop-by-port - Stop services by port (8001,8002,8003,8004)"
 	@echo "  make clean       - Remove node_modules from all services"
 	@echo "  make help        - Show this help message"
