@@ -16,6 +16,11 @@ dotenv.config({ path: path.join(__dirname, `../${envFile}`) });
 app.use(cors());
 app.use(express.json());
 
+// ヘルスチェックエンドポイント
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP' });
+});
+
 // データベース接続の初期化
 const db = dbConnection;
 console.log('Database initialized');

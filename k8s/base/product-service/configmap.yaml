@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-service-config
+  namespace: microservices
+data:
+  NODE_ENV: "prod"
+  PORT: "8002"
+  DB: "json-product.db"
+  MESSAGE_BROKER_URL: "amqp://guest:guest@rabbitmq:5672"
+  USER_SERVICE_URL: "http://user-service:8001"
+  PRODUCT_SERVICE_URL: "http://product-service:8002"
+  ORDER_SERVICE_URL: "http://order-service:8003" 
