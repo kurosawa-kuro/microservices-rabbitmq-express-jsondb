@@ -1,4 +1,6 @@
-.PHONY: install start stop clean k8s-setup k8s-deploy k8s-delete k8s-logs k8s-status k8s-build k8s-port-forward k8s-port-forward-all k8s-port-forward-stop
+# =============================================================================
+# 変数定義
+# =============================================================================
 
 # サービス名の定義
 SERVICES = user order product api-gateway
@@ -11,7 +13,22 @@ API_GATEWAY_PORT = 8000
 RABBITMQ_PORT = 5672
 RABBITMQ_MANAGEMENT_PORT = 15672
 
-# インストール
+# =============================================================================
+# ターゲット定義
+# =============================================================================
+
+.PHONY: help
+.PHONY: install clean
+.PHONY: start start-prod stop
+.PHONY: k8s-setup k8s-build k8s-deploy k8s-delete
+.PHONY: k8s-logs k8s-status
+.PHONY: k8s-port-forward k8s-port-forward-all k8s-port-forward-stop
+
+# =============================================================================
+# 開発環境コマンド
+# =============================================================================
+
+# 依存関係のインストール
 install:
 	@echo "Installing dependencies..."
 	@for service in $(SERVICES); do \
@@ -24,9 +41,25 @@ install:
 		cd ../..; \
 	done
 
+# クリーンアップ
+clean:
+	@echo "Cleaning up..."
+	@rm -rf node_modules
+	@for service in $(SERVICES); do \
+		if [ "$$service" = "api-gateway" ]; then \
+			rm -rf api-gateway/node_modules; \
+		else \
+			rm -rf services/$$service/node_modules; \
+		fi; \
+	done
+
+# =============================================================================
+# サービス起動コマンド
+# =============================================================================
+
 # 開発モードで起動
 start:
-	@echo "Starting all services..."
+	@echo "Starting all services in development mode..."
 	@for service in $(SERVICES); do \
 		echo "Starting $$service..."; \
 		if [ "$$service" = "api-gateway" ]; then \
@@ -50,7 +83,7 @@ start-prod:
 		cd "$(CURDIR)"; \
 	done
 
-# サービスを停止 port番号を指定して停止 8001,8002,8003,8004
+# サービスを停止
 stop:
 	@echo "Stopping all services..."
 	@bash -c 'for service in $(SERVICES); do \
@@ -72,17 +105,9 @@ stop:
 	done'
 	@echo "All services stopped."
 
-# クリーンアップ
-clean:
-	@echo "Cleaning up..."
-	@rm -rf node_modules
-	@for service in $(SERVICES); do \
-		if [ "$$service" = "api-gateway" ]; then \
-			rm -rf api-gateway/node_modules; \
-		else \
-			rm -rf services/$$service/node_modules; \
-		fi; \
-	done
+# =============================================================================
+# Kubernetesコマンド
+# =============================================================================
 
 # Kubernetes環境のセットアップ
 k8s-setup:
@@ -125,6 +150,10 @@ k8s-delete:
 	@kubectl delete -f k8s/base/rabbitmq/
 	@echo "Services deleted successfully."
 
+# =============================================================================
+# Kubernetes監視コマンド
+# =============================================================================
+
 # ログの確認
 k8s-logs:
 	@echo "Showing logs for all services..."
@@ -142,6 +171,10 @@ k8s-status:
 	@kubectl get pods -n microservices
 	@echo ""
 	@kubectl get services -n microservices
+
+# =============================================================================
+# Kubernetesポートフォワーディングコマンド
+# =============================================================================
 
 # ポートフォワーディング（個別サービス）
 k8s-port-forward:
@@ -178,21 +211,36 @@ k8s-port-forward-stop:
 	@pkill -f "kubectl port-forward" || true
 	@echo "Port forwarding stopped."
 
+# =============================================================================
 # ヘルプ
+# =============================================================================
+
 help:
 	@echo "Available commands:"
+	@echo ""
+	@echo "Development Commands:"
 	@echo "  make install     - Install dependencies for all services"
+	@echo "  make clean       - Remove node_modules from all services"
+	@echo ""
+	@echo "Service Commands:"
 	@echo "  make start       - Start all services in development mode"
 	@echo "  make start-prod  - Start all services in production mode"
 	@echo "  make stop        - Stop all services"
-	@echo "  make clean       - Remove node_modules from all services"
+	@echo ""
+	@echo "Kubernetes Commands:"
 	@echo "  make k8s-setup   - Set up Kubernetes environment"
 	@echo "  make k8s-build   - Build Docker images for all services"
 	@echo "  make k8s-deploy  - Deploy all services to Kubernetes"
 	@echo "  make k8s-delete  - Delete all services from Kubernetes"
+	@echo ""
+	@echo "Kubernetes Monitoring:"
 	@echo "  make k8s-logs    - Show logs for all services"
 	@echo "  make k8s-status  - Show status of all services"
+	@echo ""
+	@echo "Kubernetes Port Forwarding:"
 	@echo "  make k8s-port-forward SERVICE=<name> - Forward ports for a specific service"
 	@echo "  make k8s-port-forward-all           - Forward ports for all services"
 	@echo "  make k8s-port-forward-stop          - Stop all port forwarding"
+	@echo ""
+	@echo "Help:"
 	@echo "  make help        - Show this help message"
